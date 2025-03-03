@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annamalai University - Registration</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Header animation from left */
+        .header-slide-in {
+            animation: slideIn 1s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Fade-in animation for content */
+        .content-fade-in {
+            animation: fadeInContent 2s ease-in-out;
+        }
+
+        @keyframes fadeInContent {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+<!-- Header with Logo and Title -->
+<header class="bg-[#002147] text-white flex items-center justify-between px-4 py-6 header-slide-in relative z-20 ">
+    <div class="flex items-center gap-4">
+        <img src="data:image/png;base64,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" alt="University Logo" class="h-20 w-15 rounded-full logo">
+        <div class="flex flex-col justify-center">
+            <h1 class="text-2xl font-bold text-center sm:text-left text-[#FFD700]">Annamalai University</h1>
+            <p class="text-l font-bold text-center sm:text-left text-[#00BFFF]">Department of Information Technology</p>
+
+        </div>
+    </div>
+    
+    <!-- Hamburger Button -->
+    <button class="lg:hidden flex flex-col justify-center items-center w-8 h-8 relative z-50" id="menuButton">
+        <span class="w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
+        <span class="w-6 h-0.5 bg-white mb-1.5 transition-all duration-300"></span>
+        <span class="w-6 h-0.5 bg-white transition-all duration-300"></span>
+    </button>
+</header>
+
+<!-- Desktop Navigation -->
+<nav class=" bg-[#4B0082] text-white shadow-md hidden lg:block">
+    <div class="container mx-auto px-4 py-3">
+        <div class="space-x-4">
+            <a href="/" class="text-sm font-medium hover:text-[#FFD700] transition-all ease-in-out duration-200">Home</a>
+            <a href="{% url 'student-login' %}" class="text-sm font-medium hover:text-[#FFD700] transition-all ease-in-out duration-200">Student Login</a>
+            <a href="{% url 'staff-login' %}" class="text-sm font-medium hover:text-[#FFD700] transition-all ease-in-out duration-200">Staff Login</a>
+            <a href="{% url 'register' %}" class="text-sm font-medium hover:text-[#FFD700] transition-all ease-in-out duration-200">Register</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Navigation Overlay -->
+<div id="mobileNav" class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden z-30">
+    <!-- Mobile Menu -->
+    <div class="fixed top-0 right-0 w-64 h-full bg-[#002147] transform translate-x-full transition-transform duration-300 ease-out shadow-lg">
+        <div class="pt-24 px-6">
+            <nav class="space-y-6">
+                <a href="/" 
+                   class="block text-white text-lg font-medium relative group py-2 px-4 hover:bg-[#003167] rounded-lg transition-all duration-300">
+                    <span class="relative inline-block">
+                        Home
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#FFD700] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </span>
+                </a>
+                <a href="{% url 'student-login' %}" 
+                   class="block text-white text-lg font-medium relative group py-2 px-4 hover:bg-[#003167] rounded-lg transition-all duration-300">
+                    <span class="relative inline-block">
+                        Student Login
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#FFD700] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </span>
+                </a>
+                <a href="{% url 'staff-login' %}" 
+                   class="block text-white text-lg font-medium relative group py-2 px-4 hover:bg-[#003167] rounded-lg transition-all duration-300">
+                    <span class="relative inline-block">
+                        Staff Login
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#FFD700] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </span>
+                </a>
+                <a href="{% url 'register' %}" 
+                   class="block text-white text-lg font-medium relative group py-2 px-4 hover:bg-[#003167] rounded-lg transition-all duration-300">
+                    <span class="relative inline-block">
+                        Register
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-[#FFD700] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </span>
+                </a>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+    .menu-open #mobileNav {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .menu-open #mobileNav > div {
+        transform: translateX(0);
+    }
+    
+    .menu-open #menuButton span:first-child {
+        transform: translateY(8px) rotate(45deg);
+    }
+    
+    .menu-open #menuButton span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-open #menuButton span:last-child {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+    
+    .active-link {
+        background-color: #003167;
+    }
+    
+    .active-link span::after {
+        transform: scaleX(1);
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial animations
+    gsap.from('header', {
+        y: -100,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+    });
+
+    gsap.from('.logo', {
+        scale: 0,
+        rotation: 360,
+        duration: 1.2,
+        delay: 0.3,
+        ease: 'back.out(1.7)'
+    });
+
+    gsap.from(['h1', 'p'], {
+        x: -50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        delay: 0.5
+    });
+
+    // Mobile menu functionality
+    const menuButton = document.getElementById('menuButton');
+    const mobileNav = document.getElementById('mobileNav');
+    const body = document.body;
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+        body.classList.toggle('menu-open');
+        
+        if (isMenuOpen) {
+            // Animate menu items in
+            gsap.fromTo('#mobileNav nav a', 
+                {
+                    x: 50,
+                    opacity: 0
+                },
+                {
+                    x: 0,
+                    opacity: 1,
+                    duration: 0.5,
+                    stagger: 0.1,
+                    delay: 0.2
+                }
+            );
+        }
+    }
+
+    menuButton.addEventListener('click', toggleMenu);
+    mobileNav.addEventListener('click', (e) => {
+        if (e.target === mobileNav) {
+            toggleMenu();
+        }
+    });
+
+    // Set active link based on current URL
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('a');
+    
+    links.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active-link');
+        }
+        
+        // Add hover animation
+        link.addEventListener('mouseenter', () => {
+            gsap.to(link, {
+                scale: 1.05,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        });
+        
+        link.addEventListener('mouseleave', () => {
+            gsap.to(link, {
+                scale: 1,
+                duration: 0.3,
+                ease: 'power2.in'
+            });
+        });
+    });
+});
+</script>
+
+
+    <!-- Content Area -->
+    <main class="flex-grow container mx-auto px-4 py-6 content-fade-in">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
+            <h1 class="text-2xl font-bold mb-6 text-center">Registration</h1>
+            
+           <!-- User Type Selection -->
+<div class="mb-6">
+    <select id="userType" 
+            class="w-full p-2 border-2 border-blue-500 rounded bg-white text-black hover:bg-blue-300 focus:ring-2 focus:ring-blue-500"
+            hx-target="#registrationForm" 
+            hx-swap="innerHTML">
+        <option value="" class="bg-white text-black">Select User Type</option>
+        <option value="student" class="bg-white text-black hover:bg-blue-100">Student</option>
+        <option value="staff" class="bg-white text-black hover:bg-blue-100">Staff</option>
+    </select>
+</div>
+
+
+            <!-- Registration Form -->
+            <form id="registrationForm" 
+                  hx-post="/register/"
+                  hx-swap="outerHTML"
+                  class="space-y-4">
+                
+                <!-- Dynamic Form Fields -->
+                <div id="dynamicFields"></div>
+                
+                <!-- Common Fields -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" 
+                           name="password" 
+                           class="w-full p-2 border rounded"
+                           required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Confirm Password</label>
+                    <input type="password" 
+                           name="confirm_password" 
+                           class="w-full p-2 border rounded"
+                           required>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                    Register
+                </button>
+            </form>
+
+            <!-- Error/Success Messages -->
+            <div id="messages" class="mt-4"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#002147] text-white">
+        <div class="container mx-auto px-4 py-4 text-center">
+            <p class="text-sm">
+                &copy; 2024 Annamalai University - Department of Information Technology. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Dynamic Form and Error Handling -->
+    <script>
+        document.getElementById('userType').addEventListener('change', function() {
+            const dynamicFields = document.getElementById('dynamicFields');
+            const userType = this.value;
+
+            if (userType === 'student') {
+                dynamicFields.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Roll Number</label>
+                        <input type="text" name="roll_number" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 hover:bg-blue-600 hover:text-white p-1 rounded">Student Type</label>
+                        <select name="student_type" class="w-full p-2 border rounded" required>
+                            <option value="regular">Regular</option>
+                            <option value="lateral">Lateral</option>
+                            <option value="rejoin">Rejoin</option>
+                        </select>
+                    </div>
+                    <div id="rejoinField" style="display: none;">
+                        <label class="block text-sm font-medium mb-1">Previous Roll Number</label>
+                        <input type="text" name="previous_roll_number" class="w-full p-2 border rounded">
+                    </div>
+                `;
+
+                // Show/hide previous roll number field for rejoin students
+                document.querySelector('[name="student_type"]').addEventListener('change', function() {
+                    document.getElementById('rejoinField').style.display = 
+                        this.value === 'rejoin' ? 'block' : 'none';
+                });
+            } else if (userType === 'staff') {
+                dynamicFields.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Staff ID</label>
+                        <input type="text" name="staff_id" class="w-full p-2 border rounded" required>
+                    </div>
+                `;
+            }
+        });
+
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            const messages = document.getElementById('messages');
+            if (evt.detail.successful) {
+                messages.innerHTML = `
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                        Registration successful!
+                    </div>
+                `;
+                document.getElementById('registrationForm').reset();
+            } else {
+                const error = evt.detail.xhr.response;
+                messages.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        ${error}
+                    </div>
+                `;
+            }
+        });
+    </script>
+
+</body>
+</html>

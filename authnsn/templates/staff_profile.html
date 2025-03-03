@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Profile</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        // Updated to use session_id instead of JWT
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            // Session ID is automatically included in cookies
+            // No need to manually add it to headers
+        });
+
+        // Handle successful login redirect
+        document.body.addEventListener('htmx:afterSettle', function(evt) {
+            if (evt.detail.xhr.status === 200 && evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+                window.location.href = evt.detail.xhr.getResponseHeader('HX-Redirect');
+            }
+        });
+
+        // Check session on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const session_id = document.cookie.split('; ').find(row => row.startsWith('session_id='));
+            if (!session_id) {
+                window.location.href = '/student/login/';
+            }
+        });
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="max-w-4xl mx-auto p-6 mt-8 bg-white shadow-lg rounded-lg">
+        <div class="flex justify-center mb-6">
+            <div class="relative">
+                <img id="profile-img" src="https://via.placeholder.com/150" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-blue-500">
+                <label for="file-upload" class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </label>
+                <input id="file-upload" type="file" accept="image/*" onchange="handleFileUpload(event)" class="hidden">
+            </div>
+        </div>
+
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Staff Profile</h1>
+
+        <div class="space-y-4 text-lg text-gray-700">
+            <p><strong>Staff ID:</strong> <span id="staff_id">{{ staff_id }}</span></p>
+            <p><strong>Email:</strong> <span id="email">{{ email }}</span></p>
+        </div>
+
+        <!-- Back to Dashboard Link with Icon -->
+        <div class="flex justify-between items-center mt-6">
+            <a href="/staff/dash/" class="flex items-center text-blue-600 hover:text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l7-7 7 7M3 15l7 7 7-7" />
+                </svg>
+                <span class="text-lg font-medium">Back to Dashboard</span>
+            </a>
+        </div>
+
+        <div class="flex justify-center mt-8">
+            <button class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 transition"
+                    hx-post="/logout/"
+                    hx-trigger="click"
+                    hx-target="body">
+                Logout
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

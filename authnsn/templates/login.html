@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="bg-white shadow-lg rounded-lg w-full max-w-md p-6">
+        <h1 class="text-2xl font-semibold text-center text-gray-800 mb-6">
+            Student Login
+        </h1>
+        <form hx-post="/student/login/" hx-swap="outerHTML" hx-trigger="submit" class="space-y-4">
+            {% csrf_token %}
+            <div class="space-y-1">
+                <label for="roll_number" class="block text-sm font-medium text-gray-700">
+                    Roll Number
+                </label>
+                <input type="text" name="roll_number" id="roll_number" 
+                    placeholder="Enter your roll number"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    required>
+            </div>
+            <div class="space-y-1">
+                <label for="student_type" class="block text-sm font-medium text-gray-700">
+                    Student Type
+                </label>
+                <select name="student_type" id="student_type"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    required>
+                    <option value="regular">Regular</option>
+                    <option value="lateral">Lateral Entry</option>
+                    <option value="rejoin">Rejoin</option>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <label for="password" class="block text-sm font-medium text-gray-700">
+                    Password
+                </label>
+                <input type="password" name="password" id="password"
+                    placeholder="Enter your password"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    required>
+            </div>
+            <div id="error-message" class="text-sm text-red-600"></div>
+            <button type="submit"
+                class="w-full py-2 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Login
+            </button>
+        </form>
+        <p class="mt-4 text-sm text-gray-600 text-center">
+            Forgot your password? <a href="#" class="text-indigo-600 hover:underline">Reset it here</a>.
+        </p>
+    </div>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        // Updated to use session_id instead of JWT
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            // Session ID is automatically included in cookies
+            // No need to manually add it to headers
+        });
+
+        // Handle successful login redirect
+        document.body.addEventListener('htmx:afterSettle', function(evt) {
+            if (evt.detail.xhr.status === 200 && evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+                window.location.href = evt.detail.xhr.getResponseHeader('HX-Redirect');
+            }
+        });
+
+        // Check session on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const session_id = document.cookie.split('; ').find(row => row.startsWith('session_id='));
+            if (!session_id) {
+                window.location.href = '/student/login/';
+            }
+        });
+    </script>
+{% endblock %}
