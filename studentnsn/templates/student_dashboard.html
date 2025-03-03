@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Updated to use session_id instead of JWT
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            // Session ID is automatically included in cookies
+            // No need to manually add it to headers
+        });
+
+        // Handle successful login redirect
+        document.body.addEventListener('htmx:afterSettle', function(evt) {
+            if (evt.detail.xhr.status === 200 && evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+                window.location.href = evt.detail.xhr.getResponseHeader('HX-Redirect');
+            }
+        });
+
+        // Check session on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const session_id = document.cookie.split('; ').find(row => row.startsWith('session_id='));
+            if (!session_id) {
+                window.location.href = '/student/login/';
+            }
+        });
+    </script>
+    <!-- Add these styles to your existing style tag -->
+<style>
+    .htmx-indicator {
+        display: none;
+    }
+    .htmx-request .htmx-indicator {
+        display: block;
+    }
+    .htmx-request.htmx-indicator {
+        display: block;
+    }
+</style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 bg-[#002147] text-white shadow-lg z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="data:image/png;base64,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" alt="University Logo" class="h-10 w-10 rounded-full">
+                    <h1 class="text-xl font-bold hidden md:block text-[#FFD700]">Department of Information Technology</h1>
+                    <h1 class="text-xl font-bold md:hidden  text-[#FFD700]">IT Department</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <a href="/profile/" class="flex flex-col items-center">
+                            <img src="https://cdn-icons-png.flaticon.com/128/8660/8660988.png" alt="Accounts" class="w-5 h-5" style="filter: invert(100%) brightness(200%);">
+                            <span class="text-sm text-white-700">Profile</span>
+                        </a>
+                    </div>
+                    <button onclick="toggleMenu()" class="text-white hover:bg-blue-700 p-2 rounded-lg transition-colors duration-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" 
+                             stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay -->
+    <div id="overlay" onclick="toggleMenu()" 
+         class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 transition-opacity duration-300"></div>
+
+    <!-- Sliding Menu -->
+    <div id="sidebar" 
+         class="fixed top-0 left-0 h-full w-72 bg-[#002147] text-white transform -translate-x-full 
+                transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-blue-700">
+            <h1 class="text-xl font-bold text-[#FFD700]">Student Dashboard</h1>
+            <button onclick="toggleMenu()" class="hover:bg-blue-700 p-2 rounded-lg transition-colors duration-200 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" 
+                     stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <nav class="mt-6">
+            <div class="space-y-1">
+                <!-- Student Details Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleDropdown('studentDetails')" 
+                            class="w-full flex items-center justify-between px-6 py-3 text-lg hover:bg-[#4B0082] 
+                                   transition-colors duration-200 rounded-lg mx-2">
+                        <span class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Student Details</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200" 
+                             id="studentDetailsArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="studentDetails" class="hidden px-4 py-2 bg-blue-800 rounded-lg mx-4 mt-1">
+                        <a href="/personal-information/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Personal Information</a>
+                        <a href="/breif-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Brief Details</a>
+                        <a href="/bank-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Bank Details</a>
+                        <a href="/host-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Hostel Details</a>
+                        <a href="/rejoin-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Rejoin Student</a>
+                        <a href="/documents/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">
+                            <span class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                                </svg>
+                                <span>Personal Documents</span>
+                            </span>
+                        </a>
+                        <a href="/download/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF]  rounded transition-colors duration-200">
+                            <span class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                <span>Download Documents</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="/visual-details/" class="flex items-center space-x-2 px-8 py-3 text-lg hover:bg-[#4B0082]  transition-colors duration-200 rounded-lg mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Visualization</span>
+                </a>
+
+                <!-- Education Details Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleDropdown('educationDetails')" 
+                            class="w-full flex items-center justify-between px-6 py-3 text-lg hover:bg-[#4B0082] 
+                                   transition-colors duration-200 rounded-lg mx-2">
+                        <span class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                            </svg>
+                            <span>Education Details</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200" 
+                             id="educationDetailsArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="educationDetails" class="hidden px-4 py-2 bg-blue-800 rounded-lg mx-4 mt-1">
+                        <a href="/school-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">School Details</a>
+                        <a href="/diploma-details/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">Diploma Student</a>
+                        <a href="/dmarksheets/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">
+                            <span class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span>Diploma Marksheets</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="/academics/" class="flex items-center space-x-2 px-8 py-3 text-lg hover:bg-[#4B0082]  transition-colors duration-200 rounded-lg mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <span>Academics</span>
+                </a>
+
+                <div class="relative">
+                    <button onclick="toggleDropdown('examination')" 
+                            class="w-full flex items-center justify-between px-6 py-3 text-lg hover:bg-[#4B0082]  
+                                   transition-colors duration-200 rounded-lg mx-2">
+                        <span class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <span>Examination</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200" 
+                             id="examinationArrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="examination" class="hidden px-4 py-2 bg-blue-800 rounded-lg mx-4 mt-1">
+                        <a href="/examination/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF] rounded transition-colors duration-200">
+                            <span class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>Semester Marks</span>
+                            </span>
+                        </a>
+                        <a href="/marksheets/" class="block px-4 py-2 text-sm hover:bg-[#00BFFF]  rounded transition-colors duration-200">
+                            <span class="flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span>Marksheets</span>
+                            </span>
+                        </a>
+                    </div>
+                <a href="/scholarship/" class="flex items-center space-x-2 px-8 py-3 text-lg hover:bg-[#4B0082]  transition-colors duration-200 rounded-lg mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 14l9-5-9-5-9 5 9 5z 
+                            M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z
+                            M12 14l-6-3.333v4"/>
+                    </svg>
+                    <span>Scholarship</span>
+                </a>
+                <a href="/report-details/" class="flex items-center space-x-2 px-8 py-3 text-lg hover:bg-[#4B0082]  transition-colors duration-200 rounded-lg mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Report</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="pt-16">
+        <div class="max-w-7xl mx-auto mt-6 p-6 bg-white shadow-lg rounded-lg">
+            <div class="text-gray-700 space-y-4">
+                <p class="flex items-center space-x-2">
+                    <strong class="text-blue-900">Roll Number:</strong> 
+                    <span id="roll_number" class="bg-gray-100 px-3 py-1 rounded">{{ roll_number }}</span>
+                </p>
+                <p class="flex items-center space-x-2">
+                    <strong class="text-blue-900">Student Type:</strong> 
+                    <span id="student_type" class="bg-gray-100 px-3 py-1 rounded">{{ student_type }}</span>
+                </p>
+                <p class="flex items-center space-x-2">
+                    <strong class="text-blue-900">Email:</strong> 
+                    <span id="email" class="bg-gray-100 px-3 py-1 rounded">{{ email }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="max-w-7xl mx-auto mt-6 p-6">
+        <!-- News Section -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-900">
+                            {% if is_tech_news %}
+                            Technology News
+                            {% else %}
+                            Search Results
+                            {% endif %}
+                        </h2>
+                        <p class="text-gray-600 text-sm mt-1">
+                            {% if is_tech_news %}
+                            Latest updates from the tech world
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if not is_tech_news %}
+                    <button 
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+                        hx-get="{% url 'student-dashboard' %}?news-search=true"
+                        hx-target="#news-container"
+                    >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Tech News
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="relative">
+                    <input
+                        type="search"
+                        name="search"
+                        placeholder="Search for any news topic..."
+                        class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        hx-get="{% url 'student-dashboard' %}?news-search=true"
+                        hx-trigger="keyup changed delay:500ms, search"
+                        hx-target="#news-container"
+                        hx-indicator="#search-indicator"
+                    >
+                    <div class="absolute left-3 top-2.5">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <div id="search-indicator" class="htmx-indicator absolute right-3 top-2.5">
+                        <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- News Container -->
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% include 'partials/news_section.html' %}
+            </div>
+        </div>
+    </div>
+    <script>
+        // Toggle menu function
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Toggle dropdown function
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const arrow = document.getElementById(id + 'Arrow');
+            
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+    </script>
+    <script>
+        // Active menu item tracking
+        function setActiveItem(element) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('bg-blue-700');
+            });
+            // Add active class to clicked item
+            element.classList.add('bg-blue-700');
+        }
+
+        // Mobile responsive menu handling
+        function handleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (window.innerWidth < 768) {  // Mobile breakpoint
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+                document.querySelectorAll('.dropdown-arrow').forEach(arrow => {
+                    arrow.classList.remove('rotate-180');
+                });
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', handleMobileMenu);
+
+        // Initialize mobile menu state
+        handleMobileMenu();
+
+        // Active route highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const menuItems = document.querySelectorAll('a[href]');
+            
+            menuItems.forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('bg-blue-700');
+                    // If item is in dropdown, show parent dropdown
+                    const parentDropdown = item.closest('.dropdown-content');
+                    if (parentDropdown) {
+                        parentDropdown.classList.remove('hidden');
+                        const arrow = document.querySelector(`#${parentDropdown.id}Arrow`);
+                        if (arrow) arrow.classList.add('rotate-180');
+                    }
+                }
+            });
+        });
+
+        // Add smooth hover effect for dropdown items
+        const dropdownItems = document.querySelectorAll('.dropdown-content a');
+        dropdownItems.forEach(item => {
+            item.addEventListener('mouseover', function() {
+                this.classList.add('scale-105', 'transform', 'transition-transform');
+            });
+            item.addEventListener('mouseout', function() {
+                this.classList.remove('scale-105', 'transform');
+            });
+        });
+
+        // Improved dropdown animation
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const arrow = document.getElementById(id + 'Arrow');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(content => {
+                if (content.id !== id) {
+                    content.classList.add('hidden');
+                    const otherArrow = document.getElementById(content.id + 'Arrow');
+                    if (otherArrow) otherArrow.classList.remove('rotate-180');
+                }
+            });
+
+            // Toggle current dropdown with animation
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                dropdown.classList.add('animate-fadeIn');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('animate-fadeIn');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        // Add keydown event for accessibility
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                
+                // Close all dropdowns
+                document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+                document.querySelectorAll('.dropdown-arrow').forEach(arrow => {
+                    arrow.classList.remove('rotate-180');
+                });
+            }
+        });
+
+        // Add custom animation classes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fadeIn {
+                animation: fadeIn 0.3s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+</script>
+
+<!-- Additional Styles for professional look -->
+<style>
+    /* Smooth scrollbar for sidebar */
+    #sidebar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+    #sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    #sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    /* Improved focus styles for accessibility */
+    a:focus, button:focus {
+        outline: 2px solid rgba(59, 130, 246, 0.5);
+        outline-offset: 2px;
+    }
+
+    /* Smooth transitions for interactive elements */
+    .menu-item, .dropdown-item {
+        transition: all 0.2s ease-in-out;
+    }
+
+    /* Active menu item indicator */
+    .menu-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60%;
+        background-color: #ffffff;
+        border-radius: 0 2px 2px 0;
+    }
+</style>
+</body>
+</html>

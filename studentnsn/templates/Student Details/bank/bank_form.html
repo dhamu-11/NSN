@@ -1,0 +1,97 @@
+<!-- templates/breif_form.html -->
+{% if message %}
+<div class="message success">{{ message }}</div>
+{% endif %}
+
+<form hx-post="{% url 'bank' %}" 
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>First Name*</label>
+        <input type="text" 
+               name="first_name" 
+               value="{{ bank_data.first_name|default:'' }}"
+               required>
+    </div>
+
+
+        <div class="form-group">
+            <label>Last Name*</label>
+            <input type="text" 
+                   name="last_name" 
+                   value="{{ bank_data.last_name|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Account Number*</label>
+            <input type="number" 
+                   name="account_number" 
+                   value="{{ bank_data.account_number|default:'' }}"
+                   required>
+        </div>
+
+
+        <div class="form-group">
+            <label>Branch*</label>
+            <input type="text" 
+                   name="branch" 
+                   value="{{ bank_data.branch|default:'' }}"
+                   required>
+        </div>
+
+
+        <div class="form-group">
+            <label>IFSC*</label>
+            <input type="text" 
+                   name="ifsc" 
+                   value="{{ bank_data.ifsc|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>MICR*</label>
+            <input type="number" 
+                   name="micr" 
+                   value="{{ bank_data.micr|default:'' }}"
+                   required>
+        </div>
+
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Account Type*</label>
+            <select name="account_type"
+                    required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="Savings" {% if bank_data.account_type == 'Savings' %}selected{% endif %}>Savings</option>
+                <option value="Current" {% if bank_data.account_type == 'Current' %}selected{% endif %}>Current</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Address*</label>
+            <input type="text" 
+                   name="address" 
+                   value="{{ bank_data.address|default:'' }}"
+                   required>
+        </div>
+
+     
+    
+    <div class="form-group">
+        <label>PAN Card Number*</label>
+        <input type="text" 
+               name="pan_number" 
+               value="{{ bank_data.pan_number|default:'' }}"
+               required>
+    </div>
+    
+
+    <div class="form-group">
+        <button type="submit">
+            {% if bank_data %}Update{% else %}Save{% endif %} Bank Details
+        </button>
+    </div>
+</form>

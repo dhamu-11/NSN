@@ -1,0 +1,79 @@
+<!-- templates/breif_form.html -->
+{% if message %}
+<div class="message success">{{ message }}</div>
+{% endif %}
+
+<form hx-post="{% url 'host' %}" 
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    <div class="form-grid">
+    <div class="form-group">
+        <label>First Name*</label>
+        <input type="text" 
+               name="first_name" 
+               value="{{ host_data.first_name|default:'' }}"
+               required>
+    </div>
+
+
+        <div class="form-group">
+            <label>Last Name*</label>
+            <input type="text" 
+                   name="last_name" 
+                   value="{{ host_data.last_name|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Hostel Name*</label>
+            <input type="text" 
+                   name="hostel_name" 
+                   value="{{ host_data.hostel_name|default:'' }}"
+                   required>
+        </div>
+
+
+        <div class="form-group">
+            <label>Hostel Address*</label>
+            <input type="text" 
+                   name="hostel_address" 
+                   value="{{ host_data.hostel_address|default:'' }}"
+                   required>
+        </div>
+
+
+        <div class="form-group">
+            <label>From Date*</label>
+            <input type="date" 
+                   name="from_date" 
+                   value="{{ host_data.from_date|date:'Y-m-d'|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>To Date*</label>
+            <input type="date" 
+                   name="to_date" 
+                   value="{{ host_data.to_date|date:'Y-m-d'|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Room Number*</label>
+            <input type="text" 
+                   name="room_number" 
+                   value="{{ host_data.room_number|default:'' }}"
+                   required>
+        </div>
+
+       
+    
+    </div>
+
+    <div class="form-group">
+        <button type="submit">
+            {% if host_data %}Update{% else %}Save{% endif %} Breif Details
+        </button>
+    </div>
+</form>

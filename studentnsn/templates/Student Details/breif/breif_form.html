@@ -1,0 +1,119 @@
+{% if message %}
+<div class="message success">{{ message }}</div>
+{% endif %}
+
+<form hx-post="{% url 'breif' %}" 
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Identification Marks*</label>
+            <input type="text" 
+                   name="identification_marks" 
+                   value="{{ breif_data.identification_marks|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Extracurricular Activities*</label>
+            <input type="text" 
+                   name="extracurricular_activities" 
+                   value="{{ breif_data.extracurricular_activities|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Brother Name*</label>
+            <input type="text" 
+                   name="brother_name" 
+                   value="{{ breif_data.brother_name|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Brother Mobile*</label>
+            <input type="text" 
+                   name="brother_mobile" 
+                   value="{{ breif_data.brother_mobile|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Sister Names*</label>
+            <input type="text" 
+                   name="sister_names" 
+                   value="{{ breif_data.sister_names|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Sister Mobile*</label>
+            <input type="text" 
+                   name="sister_mobile" 
+                   value="{{ breif_data.sister_mobile|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Friends Names*</label>
+            <input type="text" 
+                   name="friends_names" 
+                   value="{{ breif_data.friends_names|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Friends Mobile*</label>
+            <input type="text" 
+                   name="friends_mobile" 
+                   value="{{ breif_data.friends_mobile|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <!-- Hidden input as a fallback -->
+            <input type="hidden" name="having_vehicle" value="false">
+            
+            <label class="flex items-center">
+                <input type="checkbox" 
+                       name="having_vehicle" 
+                       value="true" 
+                       {% if breif_data.having_vehicle %}checked{% endif %}
+                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                <span class="ml-2 text-sm text-gray-700"> Having Vehicle</span>
+            </label>
+        </div>
+    
+        <div class="form-group">
+            <label>Vehicle Number</label>
+            <input type="text" 
+                   name="vehicle_number" 
+                   value="{{ breif_data.vehicle_number|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Any Health Issues*</label>
+            <input type="text" 
+                   name="any_health_issues" 
+                   value="{{ breif_data.any_health_issues|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Hobbies*</label>
+            <input type="text" 
+                   name="hobbies" 
+                   value="{{ breif_data.hobbies|default:'' }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button type="submit">
+            {% if breif_data %}Update{% else %}Save{% endif %} Brief Details
+        </button>
+    </div>
+</form>

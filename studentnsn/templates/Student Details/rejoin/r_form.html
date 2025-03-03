@@ -1,0 +1,60 @@
+<!-- templates/breif_form.html -->
+{% if message %}
+<div class="message success">{{ message }}</div>
+{% endif %}
+
+<form hx-post="{% url 'rejoin' %}" 
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    <div class="form-grid">
+    <div class="form-group">
+        <label>New Roll Number*</label>
+        <input type="number" 
+               name="new_roll_number" 
+               value="{{ r_data.new_roll_number|default:'' }}"
+               required>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Previous Type of Student*</label>
+        <select name="previous_type_of_student"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="Regular" {% if r_data.previous_type_of_student == 'Regular' %}selected{% endif %}>Regular</option>
+            <option value="Lateral" {% if r_data.previous_type_of_student == 'Lateral' %}selected{% endif %}>Lateral</option>
+        </select>
+    </div>
+
+        <div class="form-group">
+            <label>Year of Discontinue*</label>
+            <input type="date" 
+                   name="year_of_discontinue" 
+                   value="{{ r_data.year_of_discontinue|date:'Y-m-d'|default:'' }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Year of Rejoin*</label>
+            <input type="date" 
+                   name="year_of_rejoin" 
+                   value="{{ r_data.year_of_rejoin|date:'Y-m-d'|default:'' }}"
+                   required>
+        </div>
+
+
+        <div class="form-group">
+            <label>Reason for Discontinue*</label>
+            <input type="text" 
+                   name="reason_for_discontinue" 
+                   value="{{ r_data.reason_for_discontinue|default:'' }}"
+                   required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button type="submit">
+            {% if r_data %}Update{% else %}Save{% endif %} Rejoin Details
+        </button>
+    </div>
+</form>

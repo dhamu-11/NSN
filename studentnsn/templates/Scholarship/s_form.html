@@ -1,0 +1,56 @@
+<!-- templates/breif_form.html -->
+{% if message %}
+<div class="message success">{{ message }}</div>
+{% endif %}
+
+<form hx-post="{% url 'scholar' %}" 
+      hx-target="#form-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    
+    <div class="form-grid">
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Scholarship Type*</label>
+        <select name="scholarship_type"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="Pudhumai Penn" {% if s_data.scholarship_type == 'Pudhumai Penn' %}selected{% endif %}>Pudhumai Penn</option>
+            <option value="7.5 Special Quota" {% if s_data.scholarship_type == '7.5 Special Quota' %}selected{% endif %}>7.5 Special Quota</option>
+            <option value="Post Matric (BC/MBC)" {% if s_data.scholarship_type == 'Post Matric (BC/MBC)' %}selected{% endif %}>Post Matric (BC/MBC)</option>
+            <option value="SC/ST" {% if s_data.scholarship_type == 'SC/ST' %}selected{% endif %}>SC/ST</option>
+            <option value="First Graduate" {% if s_data.scholarship_type == 'First Graduate' %}selected{% endif %}>First Graduate</option>
+        </select>
+    </div>
+
+
+
+        <div class="form-group">
+            <label>Academic Year Availed*</label>
+            <input type="number" 
+                   name="academic_year_availed" 
+                   value="{{ s_data.academic_year_availed|default:'' }}"
+                   required>
+        </div>
+
+        <div>
+            <!-- Hidden input as a fallback -->
+            <input type="hidden" name="availed" value="false">
+            
+            <label class="flex items-center">
+                <input type="checkbox" 
+                       name="availed" 
+                       value="true" 
+                       {% if s_data.availed %}checked{% endif %}
+                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                <span class="ml-2 text-sm text-gray-700">Availed </span>
+            </label>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+        <button type="submit">
+            {% if s_data %}Update{% else %}Save{% endif %} Scholarship Details
+        </button>
+    </div>
+</form>

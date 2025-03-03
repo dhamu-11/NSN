@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Information</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        document.body.addEventListener('htmx:configRequest', function(evt) {});
+
+        document.body.addEventListener('htmx:afterSettle', function(evt) {
+            if (evt.detail.xhr.status === 200 && evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+                window.location.href = evt.detail.xhr.getResponseHeader('HX-Redirect');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const session_id = document.cookie.split('; ').find(row => row.startsWith('session_id='));
+            if (!session_id) {
+                window.location.href = '/student/login/';
+            }
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-[#002147] text-white py-4 md:py-6 shadow-md">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h1 class="text-xl md:text-2xl font-bold">Academics Information</h1>
+                <p class="text-sm">Roll Number: {{ roll_number }}</p>
+                <a href="/student/dash/" class="flex items-center text-white hover:text-blue-200 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l7-7 7 7M3 15l7 7 7-7" />
+                    </svg>
+                    <span class="text-base md:text-lg font-medium">Back to Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 md:py-8">
+        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 max-w-4xl mx-auto">
+            <div class="mb-6">
+            </div>
+            
+            <div class="container">
+                <main>
+                    <div id="form-container">
+                        {% include 'academics/academics_form.html' %}
+                    </div>
+                </main>
+            </div>
+    </main>
+
+   
+</body>
+</html>
